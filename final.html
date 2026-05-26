@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -51,10 +50,51 @@
       font-weight: 600; font-size: 15px; color: #c8a84b;
       letter-spacing: 0.08em;
     }
-    .login-topbar .datetime {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px; color: #8a9aaa;
+    .login-topbar-right {
+      display: flex; align-items: center; gap: 12px;
     }
+    .login-topbar .datetime { display: none; }
+
+    /* Login page countdown */
+    .login-countdown-wrap {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .login-countdown {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px; font-weight: 700;
+      color: #8a9aaa;
+      letter-spacing: 0.05em;
+    }
+    .test-live-badge {
+      display: none;
+      background: #1a5c2a;
+      color: #8addaa;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em;
+      padding: 3px 8px;
+      border: 1px solid #2a8a44;
+      animation: livePulse 1.2s ease-in-out infinite;
+    }
+    .test-live-badge.show { display: inline-block; }
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    /* Login settings button */
+    .login-settings-btn {
+      background: none;
+      border: 1px solid #2e4a64;
+      color: #4a6a84;
+      width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      padding: 0;
+    }
+    .login-settings-btn:hover { background: #2e4a64; color: #c8a84b; }
+    .login-settings-btn svg { width: 10px; height: 10px; stroke-width: 1.8; }
 
     .login-body {
       flex: 1; display: flex; align-items: center; justify-content: center;
@@ -92,10 +132,6 @@
       font-size: 16px; font-weight: 600;
       color: #d4c9bc;
       letter-spacing: 0.05em;
-    }
-    .login-card-header p {
-      font-size: 11px; color: #7a8a9a; margin-top: 2px;
-      letter-spacing: 0.03em;
     }
 
     .login-card-body { padding: 28px 28px 24px; }
@@ -245,15 +281,18 @@
     .btn-start:hover:not(:disabled) { background: #2a8a44; color: white; }
     .btn-start:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .btn-settings {
-      background: #2a3a4a; color: #8a9aaa;
-      border: 1px solid #3a4a5a;
-      padding: 5px 12px;
-      font-size: 12px; font-family: 'IBM Plex Mono', monospace;
+    /* Icon-only settings button */
+    .btn-settings-icon {
+      background: none; color: #4a6a84;
+      border: 1px solid #2e4a64;
+      padding: 0;
+      width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: background 0.15s, color 0.15s;
     }
-    .btn-settings:hover { background: #3a4a5a; color: #d4c9bc; }
+    .btn-settings-icon:hover { background: #2e4a64; color: #c8a84b; }
+    .btn-settings-icon svg { width: 10px; height: 10px; stroke-width: 1.8; }
 
     /* ============ MAIN LAYOUT ============ */
     .main-area {
@@ -521,6 +560,11 @@
     }
     .overlay.show { display: flex; }
 
+    /* Login page modals need higher z-index */
+    .login-overlay {
+      z-index: 300;
+    }
+
     .modal-box {
       background: var(--bg2);
       border: 2px solid var(--border);
@@ -762,7 +806,19 @@
 <div id="loginPage">
   <div class="login-topbar">
     <div class="org-name">VMC // ASSESSMENT PORTAL</div>
-    <div class="datetime" id="loginClock">Loading...</div>
+    <div class="login-topbar-right">
+      <div class="login-countdown-wrap">
+        <span class="login-countdown" id="loginCountdown" style="display:none;"></span>
+        <span class="test-live-badge" id="testLiveBadge">● TEST LIVE</span>
+      </div>
+      <div class="datetime" id="loginClock">--:--:--</div>
+      <button class="login-settings-btn" id="loginSettingsBtn" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
   </div>
   <div class="login-body">
     <div class="login-card">
@@ -792,7 +848,7 @@
       </div>
       <div class="login-footer">
         <span>Session secured &nbsp;|&nbsp; v4.1.2</span>
-        <span id="loginDate">--</span>
+        <span id="loginTime">--:--:--</span>
       </div>
     </div>
   </div>
@@ -812,7 +868,12 @@
 
     <div class="topbar-right">
       <button class="btn-start" id="startBtn">▶ START TEST</button>
-      <button class="btn-settings" id="settingsBtn">⚙ Settings</button>
+      <button class="btn-settings-icon" id="settingsBtn" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
     </div>
   </div>
 
@@ -979,8 +1040,8 @@
   </div>
 </div>
 
-<!-- Settings -->
-<div class="overlay" id="settingsModal">
+<!-- Settings (shared between login page and main app) -->
+<div class="overlay login-overlay" id="settingsModal">
   <div class="modal-box">
     <div class="modal-head">
       <h2>Settings — Admin</h2>
@@ -988,7 +1049,22 @@
     </div>
     <div class="modal-body">
       <div class="settings-section">
-        <div class="settings-section-head">Timer</div>
+        <div class="settings-section-head">Login Page Countdown</div>
+        <div class="settings-section-body">
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Minutes until test start</label>
+              <input type="number" class="field-input" id="countdownMinutes" value="90" min="0" max="9999" style="width:140px;"/>
+            </div>
+            <div class="field-group" style="display:flex;align-items:flex-end;">
+              <button class="btn-modal primary" id="startCountdownBtn" style="white-space:nowrap;">Set &amp; Start Countdown</button>
+            </div>
+          </div>
+          <div class="field-note">The login page will count down from this value. When ≤ 60 minutes remain, "TEST LIVE" badge appears.</div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-head">Exam Timer</div>
         <div class="settings-section-body">
           <div class="field-group">
             <label class="field-label">Duration (minutes)</label>
@@ -1155,20 +1231,70 @@ const VALID_USER = 'virkumar13';
 const VALID_PASS = 'asdasdasd';
 let loggedInUser = '';
 
-// Clock
+// ===================== LOGIN COUNTDOWN =====================
+let loginCountdownSec = 0;
+let loginCountdownInterval = null;
+
+function formatHHMMSS(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  if (h > 0) return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function startLoginCountdown(minutes) {
+  clearInterval(loginCountdownInterval);
+  loginCountdownSec = minutes * 60;
+
+  const cdEl = document.getElementById('loginCountdown');
+  const badgeEl = document.getElementById('testLiveBadge');
+
+  if (loginCountdownSec <= 0) { cdEl.style.display = 'none'; return; }
+
+  cdEl.style.display = 'inline';
+
+  function tick() {
+    if (loginCountdownSec <= 0) {
+      clearInterval(loginCountdownInterval);
+      cdEl.textContent = '00:00';
+      badgeEl.classList.add('show');
+      return;
+    }
+    cdEl.textContent = formatHHMMSS(loginCountdownSec);
+    // Show TEST LIVE when 60 minutes or less remain
+    if (loginCountdownSec <= 3600) {
+      badgeEl.classList.add('show');
+      cdEl.style.color = '#e05050';
+    } else {
+      badgeEl.classList.remove('show');
+      cdEl.style.color = '#8a9aaa';
+    }
+    loginCountdownSec--;
+  }
+  tick();
+  loginCountdownInterval = setInterval(tick, 1000);
+}
+
+// Clock — time only
 function updateClock() {
   const now = new Date();
   const ts = now.toLocaleTimeString('en-IN', { hour12: false });
-  const dt = now.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
   const cl = document.getElementById('loginClock');
-  const ld = document.getElementById('loginDate');
+  const lt = document.getElementById('loginTime');
   const st = document.getElementById('statusTime');
-  if (cl) cl.textContent = `${dt} | ${ts}`;
-  if (ld) ld.textContent = dt;
+  if (cl) cl.textContent = ts;
+  if (lt) lt.textContent = ts;
   if (st) st.textContent = ts;
 }
 setInterval(updateClock, 1000);
 updateClock();
+
+// Login settings button
+document.getElementById('loginSettingsBtn').addEventListener('click', () => {
+  syncSettingsToModal();
+  showModal('settingsModal');
+});
 
 document.getElementById('loginBtn').addEventListener('click', doLogin);
 document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
@@ -1185,6 +1311,7 @@ function doLogin() {
     document.getElementById('app').style.display = 'flex';
     document.getElementById('userDisplay').textContent = u.toUpperCase();
     document.getElementById('statusTest').textContent = 'Logged in — Test not started';
+    clearInterval(loginCountdownInterval);
     init();
   } else {
     err.style.display = 'block';
@@ -1272,7 +1399,6 @@ function renderSidebar() {
       ${diffBadge(q.difficulty)}
     </div>
   `).join('');
-  // Update status bar
   const idx = sq.findIndex(q => q.id === activeQId);
   document.getElementById('statusQ').textContent = `Q ${idx >= 0 ? idx+1 : '?'} / ${sq.length}`;
 }
@@ -1527,6 +1653,16 @@ document.getElementById('startTestBtn').addEventListener('click', () => {
   startTimer();
 });
 
+// ===================== SETTINGS SYNC =====================
+function syncSettingsToModal() {
+  document.getElementById('timerDuration').value = settings.timerDuration;
+  document.getElementById('totalTests').value = settings.totalTests;
+  document.getElementById('testResult').value = settings.testResult;
+  document.getElementById('testMin').value = settings.testMin;
+  document.getElementById('testMax').value = settings.testMax;
+  // Don't overwrite countdown minutes input — leave as user set it
+}
+
 // ===================== BUTTONS =====================
 document.getElementById('startBtn').addEventListener('click', () => { if (!testStarted) showModal('instructionsModal'); });
 document.getElementById('runBtn').addEventListener('click', () => { if (testStarted) runTestCases(); });
@@ -1535,11 +1671,7 @@ document.getElementById('closeSubmitModal').addEventListener('click', () => hide
 document.getElementById('closeTimeoutModal').addEventListener('click', () => hideModal('timeoutModal'));
 
 document.getElementById('settingsBtn').addEventListener('click', () => {
-  document.getElementById('timerDuration').value = settings.timerDuration;
-  document.getElementById('totalTests').value = settings.totalTests;
-  document.getElementById('testResult').value = settings.testResult;
-  document.getElementById('testMin').value = settings.testMin;
-  document.getElementById('testMax').value = settings.testMax;
+  syncSettingsToModal();
   showModal('settingsModal');
 });
 document.getElementById('cancelSettingsBtn').addEventListener('click', () => hideModal('settingsModal'));
@@ -1550,6 +1682,13 @@ document.getElementById('applySettingsBtn').addEventListener('click', () => {
   settings.testMin = parseInt(document.getElementById('testMin').value);
   settings.testMax = parseInt(document.getElementById('testMax').value);
   if (!testStarted) timeLeft = settings.timerDuration * 60;
+  hideModal('settingsModal');
+});
+
+// Countdown "Set & Start" button
+document.getElementById('startCountdownBtn').addEventListener('click', () => {
+  const mins = parseInt(document.getElementById('countdownMinutes').value) || 0;
+  startLoginCountdown(mins);
   hideModal('settingsModal');
 });
 
