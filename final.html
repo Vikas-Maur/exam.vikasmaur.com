@@ -1,0 +1,1712 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VMC — Online Assessment System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0ede8;
+      --bg2: #e8e4de;
+      --bg3: #dedad4;
+      --border: #b8b0a4;
+      --border2: #ccc5bc;
+      --text: #1a1714;
+      --text2: #4a4540;
+      --text3: #7a7068;
+      --accent: #1a3a5c;
+      --accent2: #2456884a;
+      --accent-light: #3b6fa0;
+      --red: #8b1a1a;
+      --green: #1a5c2a;
+      --orange: #7a3a0a;
+      --yellow: #7a6000;
+      --header-bg: #1a2e42;
+      --header-text: #d4c9bc;
+    }
+
+    body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+
+    /* ============ LOGIN PAGE ============ */
+    #loginPage {
+      position: fixed; inset: 0; z-index: 200;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+    }
+
+    .login-topbar {
+      background: var(--header-bg);
+      padding: 0 24px;
+      height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 3px solid #c8a84b;
+    }
+    .login-topbar .org-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600; font-size: 15px; color: #c8a84b;
+      letter-spacing: 0.08em;
+    }
+    .login-topbar .datetime {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px; color: #8a9aaa;
+    }
+
+    .login-body {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 39px,
+        var(--border2) 39px,
+        var(--border2) 40px
+      ), var(--bg);
+    }
+
+    .login-card {
+      background: var(--bg2);
+      border: 2px solid var(--border);
+      width: 420px;
+      box-shadow: 4px 4px 0 var(--border), 8px 8px 0 var(--bg3);
+    }
+
+    .login-card-header {
+      background: var(--header-bg);
+      padding: 18px 24px;
+      border-bottom: 2px solid #c8a84b;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .login-card-header .shield {
+      width: 36px; height: 36px;
+      background: #c8a84b;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
+    .login-card-header h1 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 16px; font-weight: 600;
+      color: #d4c9bc;
+      letter-spacing: 0.05em;
+    }
+    .login-card-header p {
+      font-size: 11px; color: #7a8a9a; margin-top: 2px;
+      letter-spacing: 0.03em;
+    }
+
+    .login-card-body { padding: 28px 28px 24px; }
+
+    .login-notice {
+      background: #fff3cd;
+      border: 1px solid #c8a84b;
+      border-left: 4px solid #c8a84b;
+      padding: 10px 12px;
+      font-size: 11.5px; color: #5a4500;
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .form-row { margin-bottom: 16px; }
+    .form-row label {
+      display: block;
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text3);
+      margin-bottom: 5px;
+    }
+    .form-row input {
+      width: 100%;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 9px 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-row input:focus { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    .form-row input.error { border-color: var(--red); box-shadow: inset 0 0 0 1px var(--red); background: #fff5f5; }
+
+    #loginError {
+      background: #fde8e8;
+      border: 1px solid var(--red);
+      border-left: 4px solid var(--red);
+      padding: 9px 12px;
+      font-size: 12px; color: var(--red);
+      margin-bottom: 16px;
+      display: none;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .login-btn {
+      width: 100%;
+      background: var(--header-bg);
+      color: #c8a84b;
+      border: 2px solid #c8a84b;
+      padding: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px; font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .login-btn:hover { background: #c8a84b; color: var(--header-bg); }
+    .login-btn:active { transform: translate(1px, 1px); }
+
+    .login-footer {
+      padding: 14px 28px;
+      border-top: 1px solid var(--border2);
+      background: var(--bg3);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .login-footer span { font-size: 10.5px; color: var(--text3); }
+
+    /* ============ MAIN APP ============ */
+    #app { display: none; flex-direction: column; height: 100vh; }
+
+    /* Header */
+    .topbar {
+      height: 48px;
+      background: var(--header-bg);
+      border-bottom: 3px solid #c8a84b;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 14px;
+      flex-shrink: 0;
+      position: relative; z-index: 50;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 8px; }
+
+    .hamburger-btn {
+      background: none; border: 1px solid #2e4a64; color: #8a9aaa;
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 14px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .hamburger-btn:hover { background: #2e4a64; color: #d4c9bc; }
+
+    .vmc-logo {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700; font-size: 14px;
+      color: #c8a84b; letter-spacing: 0.15em;
+      cursor: pointer;
+      user-select: none;
+      border: 1px solid #c8a84b55;
+      padding: 3px 10px;
+      transition: background 0.15s;
+    }
+    .vmc-logo:hover { background: #c8a84b22; }
+
+    .user-tag {
+      background: #2e4a64; border: 1px solid #3a5a7a;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #8ab8d8;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .user-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #4aaa6a;
+      box-shadow: 0 0 4px #4aaa6a88;
+    }
+
+    #timer {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700; font-size: 18px;
+      color: #e05050;
+      cursor: pointer;
+      padding: 2px 8px;
+      border: 1px solid #e0505033;
+      transition: background 0.15s;
+      letter-spacing: 0.05em;
+    }
+    #timer:hover { background: #e0505011; }
+    #timer.inactive { color: #4a5a6a; border-color: transparent; }
+
+    .topbar-right { display: flex; align-items: center; gap: 6px; }
+
+    .btn-start {
+      background: #1a5c2a; color: #8addaa;
+      border: 1px solid #2a8a44;
+      padding: 5px 14px;
+      font-size: 12px; font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600; letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-start:hover:not(:disabled) { background: #2a8a44; color: white; }
+    .btn-start:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-settings {
+      background: #2a3a4a; color: #8a9aaa;
+      border: 1px solid #3a4a5a;
+      padding: 5px 12px;
+      font-size: 12px; font-family: 'IBM Plex Mono', monospace;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-settings:hover { background: #3a4a5a; color: #d4c9bc; }
+
+    /* ============ MAIN LAYOUT ============ */
+    .main-area {
+      flex: 1; display: flex; overflow: hidden; position: relative;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      position: absolute; top: 0; left: 0; height: 100%;
+      width: 220px;
+      background: #e8e4de;
+      border-right: 2px solid var(--border);
+      z-index: 40;
+      overflow-y: auto;
+      transform: translateX(-100%);
+      transition: transform 0.2s ease;
+    }
+    #sidebar.open { transform: translateX(0); }
+
+    .sidebar-head {
+      padding: 10px 14px;
+      background: var(--header-bg);
+      color: #8a9aaa;
+      font-size: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #2e4a64;
+    }
+
+    #questionList { padding: 8px; }
+    .q-item {
+      padding: 8px 10px; margin-bottom: 4px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background 0.1s;
+      border-radius: 0;
+    }
+    .q-item:hover { background: var(--bg3); border-color: var(--border2); }
+    .q-item.active { background: white; border-color: var(--border); border-left: 3px solid var(--accent); }
+    .q-item-title { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 3px; line-height: 1.4; }
+    .q-item-diff { display: inline-block; font-size: 10px; font-family: 'IBM Plex Mono', monospace; padding: 1px 6px; border: 1px solid; }
+
+    /* Content area */
+    #contentWrapper { display: flex; flex: 1; overflow: hidden; }
+
+    /* Problem panel */
+    #problemSection {
+      width: 44%;
+      background: white;
+      border-right: 2px solid var(--border);
+      overflow-y: auto;
+    }
+
+    .prob-header {
+      padding: 12px 16px;
+      background: #f5f2ed;
+      border-bottom: 2px solid var(--border2);
+      display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap;
+    }
+    .prob-num {
+      background: var(--header-bg);
+      color: #c8a84b;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      padding: 2px 7px;
+      flex-shrink: 0;
+    }
+    .prob-title {
+      font-size: 15px; font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .prob-body { padding: 16px; }
+
+    .section-label {
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--text3);
+      border-bottom: 1px solid var(--border2);
+      padding-bottom: 4px; margin-bottom: 10px; margin-top: 18px;
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    .prob-desc { font-size: 13px; line-height: 1.75; color: var(--text2); }
+
+    .example-box {
+      background: #f8f5f0;
+      border: 1px solid var(--border2);
+      border-left: 3px solid #c8a84b;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+    }
+    .example-label { font-size: 10px; color: var(--text3); font-weight: 600; letter-spacing: 0.08em; margin-bottom: 5px; }
+    .example-input { color: #1a3a5c; }
+    .example-output { color: var(--green); }
+
+    .constraints-box {
+      background: #f8f5f0;
+      border: 1px solid var(--border2);
+      padding: 10px 12px;
+      font-size: 12.5px; color: var(--text2);
+      line-height: 1.9;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .sig-box {
+      background: var(--header-bg);
+      border: 1px solid #2e4a64;
+      padding: 10px 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px; color: #c8a84b;
+    }
+
+    /* ============ RIGHT PANEL ============ */
+    .right-panel {
+      display: flex; flex-direction: column;
+      width: 56%; background: var(--bg);
+    }
+
+    .editor-toolbar {
+      padding: 6px 12px;
+      background: #e0dcd6;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .editor-toolbar-left {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .toolbar-label {
+      font-size: 11px; font-family: 'IBM Plex Mono', monospace;
+      color: var(--text3); font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .lang-badge {
+      background: #1a3a5c; color: #8ab8d8;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; padding: 2px 7px;
+      border: 1px solid #2a5a8a;
+    }
+
+    .editor-area {
+      flex: 1; display: flex; overflow: hidden; min-height: 0;
+      position: relative;
+    }
+    #cm-editor { width: 100%; height: 100%; }
+    #cm-editor .cm-editor { height: 100%; font-family: 'IBM Plex Mono', monospace !important; font-size: 13px !important; }
+    #cm-editor .cm-editor.cm-focused { outline: none !important; }
+    #cm-editor .cm-scroller { overflow: auto !important; line-height: 1.65 !important; }
+
+    .editor-actions {
+      padding: 6px 12px;
+      background: #dedad4;
+      border-top: 1px solid var(--border2);
+      display: flex; justify-content: flex-end; gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-run {
+      background: white; color: var(--text);
+      border: 1px solid var(--border);
+      padding: 5px 16px;
+      font-size: 12px; font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600; cursor: pointer;
+      transition: background 0.1s;
+    }
+    .btn-run:hover:not(:disabled) { background: var(--bg3); }
+    .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-submit {
+      background: var(--accent); color: #c8a84b;
+      border: 1px solid #3a6a9a;
+      padding: 5px 18px;
+      font-size: 12px; font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700; cursor: pointer;
+      transition: background 0.1s;
+      letter-spacing: 0.04em;
+    }
+    .btn-submit:hover:not(:disabled) { background: #2456a4; }
+    .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Test Results */
+    .test-panel {
+      flex-shrink: 0;
+      display: flex; flex-direction: column;
+      border-top: 2px solid var(--border);
+      background: var(--bg2);
+      height: 42%;
+    }
+
+    .test-toolbar {
+      padding: 5px 12px;
+      background: #d8d4ce;
+      border-bottom: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    #summaryBar {
+      display: none;
+      padding: 8px 16px;
+      background: #e8e4de;
+      border-bottom: 1px solid var(--border2);
+      flex-shrink: 0;
+      gap: 20px; align-items: center;
+    }
+
+    .summary-item {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .summary-count {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 22px; font-weight: 700;
+      line-height: 1;
+    }
+    .summary-count.pass { color: var(--green); }
+    .summary-count.fail { color: var(--red); }
+    .summary-count.timeout { color: var(--orange); }
+    .summary-label { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .summary-divider { width: 1px; height: 28px; background: var(--border2); }
+
+    #testcasesTab {
+      flex: 1; overflow-y: auto; padding: 8px;
+    }
+
+    .tc-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 10px; margin-bottom: 3px;
+      border: 1px solid var(--border2);
+      background: white;
+      font-size: 12px;
+    }
+    .tc-name { font-family: 'IBM Plex Mono', monospace; color: var(--text2); }
+    .tc-status { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; }
+    .tc-status.pass { color: var(--green); }
+    .tc-status.fail { color: var(--red); }
+    .tc-status.timeout { color: var(--orange); }
+    .tc-running { display: flex; align-items: center; gap: 5px; color: var(--text3); font-size: 11px; }
+    .spin {
+      width: 10px; height: 10px; border: 1.5px solid var(--border2);
+      border-top-color: var(--accent-light);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-msg { text-align: center; padding: 30px; color: var(--text3); font-size: 12px; font-style: italic; }
+
+    /* Difficulty badges */
+    .diff-easy { color: var(--green); border-color: var(--green); }
+    .diff-medium { color: var(--orange); border-color: var(--orange); }
+    .diff-hard { color: var(--red); border-color: var(--red); }
+
+    /* ============ MODALS ============ */
+    .overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,0.5);
+      display: none; align-items: center; justify-content: center;
+    }
+    .overlay.show { display: flex; }
+
+    .modal-box {
+      background: var(--bg2);
+      border: 2px solid var(--border);
+      width: 90%; max-width: 580px;
+      box-shadow: 6px 6px 0 var(--border);
+      max-height: 88vh;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+
+    .modal-head {
+      padding: 12px 18px;
+      background: var(--header-bg);
+      border-bottom: 2px solid #c8a84b;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0;
+    }
+    .modal-head h2 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px; font-weight: 600;
+      color: #c8a84b; letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .modal-close {
+      background: none; border: 1px solid #2e4a64; color: #8a9aaa;
+      width: 24px; height: 24px; cursor: pointer;
+      font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.1s;
+    }
+    .modal-close:hover { background: #2e4a64; color: white; }
+
+    .modal-body {
+      flex: 1; overflow-y: auto; padding: 20px 24px;
+    }
+
+    .modal-footer {
+      padding: 12px 24px;
+      border-top: 1px solid var(--border2);
+      background: var(--bg3);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0;
+    }
+
+    .slide-content { display: none; }
+    .slide-content.active { display: block; }
+
+    .slide-content h3 {
+      font-size: 14px; font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border2);
+    }
+    .slide-content p, .slide-content li {
+      font-size: 13px; color: var(--text2); line-height: 1.75;
+    }
+    .slide-content ul { margin-left: 20px; margin-top: 8px; }
+    .slide-content li { margin-bottom: 4px; }
+
+    .notice-box {
+      background: #fff9e6;
+      border: 1px solid #c8a84b;
+      border-left: 4px solid #c8a84b;
+      padding: 10px 12px;
+      font-size: 12.5px; color: #5a4500;
+      margin-top: 12px; line-height: 1.6;
+    }
+
+    .warn-box {
+      background: #fdf0f0;
+      border: 1px solid var(--red);
+      border-left: 4px solid var(--red);
+      padding: 10px 12px;
+      font-size: 12.5px; color: var(--red);
+      margin-top: 12px; line-height: 1.6;
+    }
+    .warn-box b { color: #6a0000; }
+
+    .rule-item { display: flex; gap: 8px; margin-bottom: 6px; }
+    .rule-no { color: var(--red); font-weight: 700; flex-shrink: 0; }
+
+    .slide-indicator {
+      font-size: 11px; color: var(--text3);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .btn-modal {
+      padding: 6px 16px;
+      font-size: 12px; font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border);
+      background: white; color: var(--text);
+      transition: background 0.1s;
+      letter-spacing: 0.03em;
+    }
+    .btn-modal:hover { background: var(--bg3); }
+    .btn-modal.primary { background: var(--accent); color: #c8a84b; border-color: #3a6a9a; }
+    .btn-modal.primary:hover { background: #2456a4; }
+    .btn-modal.danger { background: var(--red); color: white; border-color: #6a1010; }
+    .btn-modal.danger:hover { background: #6a0000; }
+    .btn-modal.success-btn { background: var(--green); color: white; border-color: #1a4a22; }
+    .btn-modal.success-btn:hover { background: #1a4a22; }
+
+    /* ============ RESULT MODALS ============ */
+    .result-modal .modal-box { max-width: 420px; }
+    .result-modal .modal-body { text-align: center; padding: 28px; }
+    .result-icon { font-size: 48px; margin-bottom: 12px; }
+    .result-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 16px; font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .result-title.success { color: var(--green); }
+    .result-title.timeout { color: var(--red); }
+    .result-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+    /* ============ SETTINGS MODAL ============ */
+    .settings-section {
+      border: 1px solid var(--border2);
+      margin-bottom: 16px;
+    }
+    .settings-section-head {
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border2);
+      padding: 7px 12px;
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--text3);
+    }
+    .settings-section-body { padding: 14px 12px; }
+
+    .field-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .field-group { flex: 1; min-width: 120px; }
+    .field-label {
+      display: block; font-size: 10.5px; color: var(--text3);
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 5px;
+    }
+    .field-input {
+      width: 100%;
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px; color: var(--text);
+      background: white;
+      outline: none;
+    }
+    .field-input:focus { border-color: var(--accent); }
+    .field-note { font-size: 10.5px; color: var(--text3); margin-top: 8px; font-style: italic; }
+
+    /* ============ ADMIN ============ */
+    .admin-modal .modal-box { max-width: 860px; width: 95%; }
+
+    .admin-tabs {
+      display: flex; border-bottom: 2px solid var(--border2);
+      background: var(--bg3);
+      flex-shrink: 0;
+    }
+    .admin-tab-btn {
+      padding: 8px 16px;
+      font-size: 11.5px; font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600; cursor: pointer;
+      background: none; border: none; color: var(--text3);
+      border-bottom: 2px solid transparent; margin-bottom: -2px;
+      transition: color 0.15s;
+    }
+    .admin-tab-btn:hover { color: var(--text); }
+    .admin-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .admin-tab-content { display: none; }
+    .admin-tab-content.active { display: block; }
+
+    .admin-note {
+      font-size: 11px; color: var(--text3); font-style: italic;
+      margin-bottom: 10px;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: #e8e4de; color: var(--text3);
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 8px 10px; border-bottom: 2px solid var(--border); text-align: left;
+      font-weight: 700;
+    }
+    tbody td { padding: 7px 10px; border-bottom: 1px solid var(--border2); font-size: 12.5px; }
+    tbody tr:hover td { background: #f0ede8; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .table-btn {
+      padding: 3px 10px; font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600; cursor: pointer;
+      border: 1px solid;
+      background: none;
+      transition: background 0.1s;
+    }
+    .table-btn.del { color: var(--red); border-color: var(--red); }
+    .table-btn.del:hover { background: #fde8e8; }
+    .table-btn.set { color: var(--accent); border-color: var(--accent); }
+    .table-btn.set:hover { background: var(--accent2); }
+
+    .add-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .add-form-grid .full { grid-column: 1 / -1; }
+
+    .add-status { font-size: 12px; margin-top: 10px; font-family: 'IBM Plex Mono', monospace; }
+    .add-status.ok { color: var(--green); }
+    .add-status.err { color: var(--red); }
+
+    /* Timer edit */
+    .timer-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: end; }
+    .timer-colon { font-size: 20px; color: var(--text3); padding-bottom: 6px; text-align: center; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg3); }
+    ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    /* Status bar at bottom */
+    .statusbar {
+      height: 22px;
+      background: var(--header-bg);
+      border-top: 1px solid #2e4a64;
+      display: flex; align-items: center;
+      padding: 0 12px; gap: 16px;
+      flex-shrink: 0;
+    }
+    .status-item {
+      font-size: 10px; font-family: 'IBM Plex Mono', monospace;
+      color: #5a7a9a;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .status-item.accent { color: #c8a84b; }
+  </style>
+</head>
+<body>
+
+<!-- ===================== LOGIN PAGE ===================== -->
+<div id="loginPage">
+  <div class="login-topbar">
+    <div class="org-name">VMC // ASSESSMENT PORTAL</div>
+    <div class="datetime" id="loginClock">Loading...</div>
+  </div>
+  <div class="login-body">
+    <div class="login-card">
+      <div class="login-card-header">
+        <div class="shield">🔐</div>
+        <div>
+          <h1>CANDIDATE LOGIN</h1>
+          <p>Verify Maharashtra Competitive — Online Examination</p>
+        </div>
+      </div>
+      <div class="login-card-body">
+        <div class="login-notice">
+          <strong>Instructions:</strong> Use the credentials provided in your Admit Card. Ensure your internet connection is stable before proceeding.
+        </div>
+
+        <div id="loginError">⚠ Invalid username or password. Please check your credentials.</div>
+
+        <div class="form-row">
+          <label for="usernameInput">Username / Roll Number</label>
+          <input type="text" id="usernameInput" placeholder="Enter your username" autocomplete="off" spellcheck="false"/>
+        </div>
+        <div class="form-row">
+          <label for="passwordInput">Password</label>
+          <input type="password" id="passwordInput" placeholder="Enter your password"/>
+        </div>
+
+        <button class="login-btn" id="loginBtn">PROCEED TO EXAMINATION →</button>
+      </div>
+      <div class="login-footer">
+        <span>Session secured &nbsp;|&nbsp; v4.1.2</span>
+        <span id="loginDate">--</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MAIN APP ===================== -->
+<div id="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="toggleBtn">☰</button>
+      <div class="vmc-logo" id="vmcLogo">VMC</div>
+      <div class="user-tag"><div class="user-dot"></div><span id="userDisplay">—</span></div>
+    </div>
+
+    <div id="timer" class="inactive" title="Click to edit">--:--</div>
+
+    <div class="topbar-right">
+      <button class="btn-start" id="startBtn">▶ START TEST</button>
+      <button class="btn-settings" id="settingsBtn">⚙ Settings</button>
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main-area">
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <div class="sidebar-head">PROBLEM SHEET</div>
+      <div id="questionList"></div>
+    </div>
+
+    <!-- Content -->
+    <div id="contentWrapper">
+      <!-- Problem Panel -->
+      <div id="problemSection"></div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+        <div class="editor-toolbar">
+          <div class="editor-toolbar-left">
+            <span class="toolbar-label">Editor</span>
+            <span class="lang-badge">PYTHON 3</span>
+          </div>
+          <span style="font-size:10.5px;color:var(--text3);font-family:'IBM Plex Mono',monospace;">Ctrl+Z: Undo &nbsp;|&nbsp; Tab: Indent</span>
+        </div>
+
+        <div class="editor-area" style="height:52%;">
+          <div id="cm-editor"></div>
+        </div>
+
+        <div class="editor-actions">
+          <button class="btn-run" id="runBtn" disabled>▶ Run</button>
+          <button class="btn-submit" id="submitBtn" disabled>Submit ▶</button>
+        </div>
+
+        <!-- Test Panel -->
+        <div class="test-panel">
+          <div class="test-toolbar">
+            <span class="toolbar-label">Test Results</span>
+            <span id="testStatusLabel" style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;">—</span>
+          </div>
+          <div id="summaryBar">
+            <div class="summary-item">
+              <div>
+                <div class="summary-count pass" id="countPass">0</div>
+                <div class="summary-label">Passed</div>
+              </div>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+              <div>
+                <div class="summary-count fail" id="countFail">0</div>
+                <div class="summary-label">Failed</div>
+              </div>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+              <div>
+                <div class="summary-count timeout" id="countTimeout">0</div>
+                <div class="summary-label">Timeout</div>
+              </div>
+            </div>
+          </div>
+          <div id="testcasesTab">
+            <div class="empty-msg">Click "Run" to execute against test cases</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <div class="status-item">VMC Online Assessment System</div>
+    <div class="status-item accent" id="statusTime">--:--:--</div>
+    <div class="status-item" id="statusQ">Q — / —</div>
+    <div class="status-item" id="statusTest">Test not started</div>
+  </div>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+
+<!-- Instructions -->
+<div class="overlay" id="instructionsModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Examination Instructions</h2>
+    </div>
+    <div class="modal-body">
+      <div class="slide-content active" id="slide1">
+        <h3>Welcome — VMC Coding Assessment</h3>
+        <p>This is a timed coding assessment designed to evaluate your programming skills and problem-solving abilities. Please read all instructions carefully before proceeding.</p>
+        <div class="notice-box"><strong>Note:</strong> This is a proctored examination. Your activity will be monitored throughout the test duration. Proceed only from the designated examination centre.</div>
+      </div>
+      <div class="slide-content" id="slide2">
+        <h3>Test Guidelines</h3>
+        <ul>
+          <li>You will have <strong>60 minutes</strong> to complete all problems</li>
+          <li>Problems may be solved in any order</li>
+          <li>Each problem has visible and hidden test cases</li>
+          <li>You may run your code multiple times before final submission</li>
+          <li>Ensure you submit before time expires — auto-submission is not guaranteed</li>
+        </ul>
+      </div>
+      <div class="slide-content" id="slide3">
+        <h3>Proctoring &amp; Security Rules</h3>
+        <div class="rule-item"><span class="rule-no">✖</span><span>Do not switch tabs or minimize the browser</span></div>
+        <div class="rule-item"><span class="rule-no">✖</span><span>Do not use any external websites or resources</span></div>
+        <div class="rule-item"><span class="rule-no">✖</span><span>Do not communicate with any person during the test</span></div>
+        <div class="rule-item"><span class="rule-no">✖</span><span>Do not use AI tools, code generators, or online compilers</span></div>
+        <div class="rule-item"><span class="rule-no">✖</span><span>Do not copy-paste code from any external source</span></div>
+        <div class="warn-box"><b>Warning:</b> Violation of any rule will result in immediate disqualification and forfeiture of candidature.</div>
+      </div>
+      <div class="slide-content" id="slide4">
+        <h3>Technical Requirements</h3>
+        <ul>
+          <li>Ensure a stable internet connection throughout the test</li>
+          <li>Use Chrome, Firefox, or Edge (latest versions recommended)</li>
+          <li>Close all unnecessary applications and browser tabs</li>
+          <li>Disable extensions that may interfere with the platform</li>
+          <li>Test in a quiet environment free from distractions</li>
+        </ul>
+        <p style="margin-top:14px;">By clicking <strong>"I Agree, Start Test"</strong> you confirm that you have read, understood, and agree to comply with all examination rules and guidelines.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <span class="slide-indicator">Slide <span id="currentSlide">1</span> of 4</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-modal" id="prevSlideBtn" style="display:none;">← Prev</button>
+        <button class="btn-modal" id="nextSlideBtn">Next →</button>
+        <button class="btn-modal primary" id="startTestBtn" style="display:none;">I Agree, Start Test</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Submit Success -->
+<div class="overlay result-modal" id="submitModal">
+  <div class="modal-box">
+    <div class="modal-head"><h2>Submission Status</h2></div>
+    <div class="modal-body">
+      <div class="result-icon">✔</div>
+      <div class="result-title success">Submission Recorded</div>
+      <div class="result-desc">Your code has been successfully submitted. Results will be communicated via official channels.</div>
+    </div>
+    <div class="modal-footer" style="justify-content:flex-end;">
+      <button class="btn-modal success-btn" id="closeSubmitModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Timeout -->
+<div class="overlay result-modal" id="timeoutModal">
+  <div class="modal-box">
+    <div class="modal-head"><h2>Time Expired</h2></div>
+    <div class="modal-body">
+      <div class="result-icon">⏰</div>
+      <div class="result-title timeout">Examination Time Over</div>
+      <div class="result-desc">Your allotted examination time has expired. Your last submitted solution has been recorded automatically.</div>
+    </div>
+    <div class="modal-footer" style="justify-content:flex-end;">
+      <button class="btn-modal danger" id="closeTimeoutModal">Acknowledge</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="overlay" id="settingsModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Settings — Admin</h2>
+      <button class="modal-close" onclick="hideModal('settingsModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-section">
+        <div class="settings-section-head">Timer</div>
+        <div class="settings-section-body">
+          <div class="field-group">
+            <label class="field-label">Duration (minutes)</label>
+            <input type="number" class="field-input" id="timerDuration" value="60" min="1" max="180" style="width:120px;"/>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-head">Test Case Configuration</div>
+        <div class="settings-section-body">
+          <div class="field-row" style="margin-bottom:10px;">
+            <div class="field-group">
+              <label class="field-label">Total Tests</label>
+              <input type="number" class="field-input" id="totalTests" value="10" min="1" max="30"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Result Type</label>
+              <select class="field-input" id="testResult">
+                <option value="pass">All Pass</option>
+                <option value="fail">All Fail</option>
+                <option value="timeout">All Timeout</option>
+                <option value="pass+fail">Pass + Fail</option>
+                <option value="pass+timeout">Pass + Timeout</option>
+                <option value="fail+timeout">Fail + Timeout</option>
+                <option value="pass+fail+timeout">Pass + Fail + Timeout</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Min with result</label>
+              <input type="number" class="field-input" id="testMin" value="1" min="0" max="30"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Max with result</label>
+              <input type="number" class="field-input" id="testMax" value="3" min="0" max="30"/>
+            </div>
+          </div>
+          <div class="field-note">A random number (Min–Max) of test cases will receive the selected non-pass result; the rest will pass.</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal" id="cancelSettingsBtn">Cancel</button>
+      <button class="btn-modal primary" id="applySettingsBtn">Apply Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- Timer Edit -->
+<div class="overlay" id="timerEditModal">
+  <div class="modal-box" style="max-width:320px;">
+    <div class="modal-head">
+      <h2>Edit Timer</h2>
+      <button class="modal-close" onclick="hideModal('timerEditModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="timer-grid">
+        <div class="field-group">
+          <label class="field-label">Minutes</label>
+          <input type="number" class="field-input" id="editMinutes" min="0" max="999"/>
+        </div>
+        <div class="timer-colon">:</div>
+        <div class="field-group">
+          <label class="field-label">Seconds</label>
+          <input type="number" class="field-input" id="editSeconds" min="0" max="59"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal" id="cancelTimerEdit">Cancel</button>
+      <button class="btn-modal primary" id="applyTimerEdit">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin -->
+<div class="overlay admin-modal" id="adminModal">
+  <div class="modal-box" style="max-height:90vh;">
+    <div class="modal-head">
+      <h2>Admin Panel — Question Bank</h2>
+      <button class="modal-close" id="closeAdminBtn">✕</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab-btn active" data-tab="bank">Question Bank</button>
+      <button class="admin-tab-btn" data-tab="sheet">Problem Sheet</button>
+      <button class="admin-tab-btn" data-tab="add">+ Add Question</button>
+    </div>
+    <div class="modal-body" style="padding:16px;">
+
+      <div class="admin-tab-content active" id="tab-bank">
+        <div class="admin-note">All questions. Toggle "In Sheet" to include in the active test.</div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr>
+              <th>ID</th><th>Title</th><th>Difficulty</th><th>In Sheet</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="bankTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="admin-tab-content" id="tab-sheet">
+        <div class="admin-note">Questions on the Problem Sheet. Click "Set Active" to show it to the candidate.</div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr>
+              <th>#</th><th>Title</th><th>Difficulty</th><th>Active</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="sheetTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="admin-tab-content" id="tab-add">
+        <div class="add-form-grid">
+          <div class="full">
+            <label class="field-label">Title <span style="color:var(--red)">*</span></label>
+            <input type="text" class="field-input" id="addTitle" placeholder="Problem title"/>
+          </div>
+          <div>
+            <label class="field-label">Difficulty</label>
+            <select class="field-input" id="addDifficulty">
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard" selected>Hard</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Function Signature <span style="color:var(--red)">*</span></label>
+            <input type="text" class="field-input" id="addSignature" placeholder="def solve(a, b):"/>
+          </div>
+          <div class="full">
+            <label class="field-label">Description <span style="color:var(--red)">*</span></label>
+            <textarea class="field-input" id="addDesc" rows="4" style="resize:vertical;"></textarea>
+          </div>
+          <div class="full">
+            <label class="field-label">Examples (JSON) <span style="color:var(--red)">*</span></label>
+            <textarea class="field-input" id="addExamples" rows="3" style="resize:vertical;font-family:'IBM Plex Mono',monospace;" placeholder='[{"input":"a=1, b=2","output":"3"}]'></textarea>
+          </div>
+          <div class="full">
+            <label class="field-label">Constraints (one per line)</label>
+            <textarea class="field-input" id="addConstraints" rows="3" style="resize:vertical;" placeholder="1 ≤ a ≤ 10^9"></textarea>
+          </div>
+          <div>
+            <label class="field-label">Add to Sheet?</label>
+            <select class="field-input" id="addToSheet">
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-modal primary" id="submitAddQuestion" style="margin-top:14px;">Add Question</button>
+        <div class="add-status" id="addQStatus"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== AUTH =====================
+const VALID_USER = 'virkumar13';
+const VALID_PASS = 'asdasdasd';
+let loggedInUser = '';
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  const ts = now.toLocaleTimeString('en-IN', { hour12: false });
+  const dt = now.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  const cl = document.getElementById('loginClock');
+  const ld = document.getElementById('loginDate');
+  const st = document.getElementById('statusTime');
+  if (cl) cl.textContent = `${dt} | ${ts}`;
+  if (ld) ld.textContent = dt;
+  if (st) st.textContent = ts;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('usernameInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('passwordInput').focus(); });
+
+function doLogin() {
+  const u = document.getElementById('usernameInput').value.trim();
+  const p = document.getElementById('passwordInput').value;
+  const err = document.getElementById('loginError');
+
+  if (u === VALID_USER && p === VALID_PASS) {
+    loggedInUser = u;
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('userDisplay').textContent = u.toUpperCase();
+    document.getElementById('statusTest').textContent = 'Logged in — Test not started';
+    init();
+  } else {
+    err.style.display = 'block';
+    document.getElementById('usernameInput').classList.add('error');
+    document.getElementById('passwordInput').classList.add('error');
+    document.getElementById('passwordInput').value = '';
+    setTimeout(() => {
+      err.style.display = 'none';
+      document.getElementById('usernameInput').classList.remove('error');
+      document.getElementById('passwordInput').classList.remove('error');
+    }, 3500);
+  }
+}
+
+// ===================== DATA =====================
+const STORAGE_KEYS = { questions: 'vmc_questions', sheet: 'vmc_sheet', activeQ: 'vmc_active_question' };
+
+const defaultQuestions = [
+  {
+    id: 1, title: "The Money Addition Challenge", difficulty: "Hard",
+    description: "Ram and Shyam are two friends who want to combine their savings to buy a new cricket bat. Ram has saved some money and Shyam has also saved some money. They need your help to calculate the total amount they can spend together.",
+    examples: [{ input: "ram_money = 500, shyam_money = 750", output: "1250" }, { input: "ram_money = 1000, shyam_money = 2000", output: "3000" }],
+    constraints: ["1 ≤ ram_money ≤ 10^9", "1 ≤ shyam_money ≤ 10^9", "The result will fit in a 64-bit integer"],
+    signature: "def calculate_total_money(ram_money, shyam_money):"
+  },
+  {
+    id: 2, title: "The Rectangle Garden Problem", difficulty: "Hard",
+    description: "A farmer named Rakesh wants to build a fence around his rectangular garden. He knows the length and width of his garden but needs to calculate the perimeter to know how much fencing material to buy.",
+    examples: [{ input: "length = 10, width = 5", output: "30" }, { input: "length = 15, width = 8", output: "46" }],
+    constraints: ["1 ≤ length ≤ 10^6", "1 ≤ width ≤ 10^6", "All measurements are in meters"],
+    signature: "def calculate_perimeter(length, width):"
+  },
+  {
+    id: 3, title: "The Land Area Calculation Challenge", difficulty: "Hard",
+    description: "Priya inherited a rectangular plot of land from her grandfather. She wants to know the exact area of the land to determine its market value.",
+    examples: [{ input: "length = 20, width = 15", output: "300" }, { input: "length = 25, width = 12", output: "300" }],
+    constraints: ["1 ≤ length ≤ 10^6", "1 ≤ width ≤ 10^6", "Area must be calculated in square meters"],
+    signature: "def calculate_area(length, width):"
+  }
+];
+
+function loadQuestions() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.questions)) || defaultQuestions; } catch { return defaultQuestions; } }
+function saveQuestions(qs) { localStorage.setItem(STORAGE_KEYS.questions, JSON.stringify(qs)); }
+function loadSheet() {
+  try { const s = JSON.parse(localStorage.getItem(STORAGE_KEYS.sheet)); if (s) return s.map(Number); return defaultQuestions.slice(0,3).map(q=>q.id); }
+  catch { return defaultQuestions.slice(0,3).map(q=>q.id); }
+}
+function saveSheet(s) { localStorage.setItem(STORAGE_KEYS.sheet, JSON.stringify(s)); }
+function loadActiveQ() { try { const v = localStorage.getItem(STORAGE_KEYS.activeQ); return v !== null ? parseInt(v) : 1; } catch { return 1; } }
+function saveActiveQ(id) { localStorage.setItem(STORAGE_KEYS.activeQ, id); }
+
+let allQuestions = [];
+let sheetIds = [];
+let activeQId = 1;
+
+// ===================== STATE =====================
+let testStarted = false;
+let sidebarVisible = false;
+let timeLeft = 0;
+let timerInterval = null;
+let currentSlide = 1;
+const totalSlides = 4;
+let settings = { timerDuration: 60, totalTests: 10, testResult: 'fail', testMin: 1, testMax: 3 };
+let cmView = null;
+
+// ===================== HELPERS =====================
+function getSheetQuestions() { return sheetIds.map(id => allQuestions.find(q => Number(q.id) === Number(id))).filter(Boolean); }
+function diffBadge(d) {
+  const cls = d === 'Easy' ? 'diff-easy' : d === 'Medium' ? 'diff-medium' : 'diff-hard';
+  return `<span class="q-item-diff ${cls}">${d.toUpperCase()}</span>`;
+}
+function diffBadgeInline(d) {
+  const cls = d === 'Easy' ? 'diff-easy' : d === 'Medium' ? 'diff-medium' : 'diff-hard';
+  return `<span style="display:inline-block;font-size:10px;font-family:'IBM Plex Mono',monospace;padding:1px 7px;border:1px solid;border-radius:0;" class="${cls}">${d.toUpperCase()}</span>`;
+}
+function nextId() { return allQuestions.length ? Math.max(...allQuestions.map(q=>q.id)) + 1 : 1; }
+function sheetIndex(id) { const i = sheetIds.findIndex(x => Number(x)===Number(id)); return i >= 0 ? i+1 : '?'; }
+
+// ===================== RENDER SIDEBAR =====================
+function renderSidebar() {
+  const sq = getSheetQuestions();
+  document.getElementById('questionList').innerHTML = sq.map((q, idx) => `
+    <div class="q-item ${q.id === activeQId ? 'active' : ''}" onclick="selectQuestion(${q.id})">
+      <div class="q-item-title">${idx+1}. ${q.title}</div>
+      ${diffBadge(q.difficulty)}
+    </div>
+  `).join('');
+  // Update status bar
+  const idx = sq.findIndex(q => q.id === activeQId);
+  document.getElementById('statusQ').textContent = `Q ${idx >= 0 ? idx+1 : '?'} / ${sq.length}`;
+}
+
+// ===================== RENDER PROBLEM =====================
+function renderProblemOnly(q) {
+  if (!q) { document.getElementById('problemSection').innerHTML = '<div style="padding:24px;color:var(--text3);font-style:italic;font-size:13px;">No question selected.</div>'; return; }
+  const num = sheetIndex(q.id);
+  document.getElementById('problemSection').innerHTML = `
+    <div class="prob-header">
+      <span class="prob-num">Q${num}</span>
+      <div>
+        <div class="prob-title">${q.title}</div>
+        <div style="margin-top:4px;">${diffBadgeInline(q.difficulty)}</div>
+      </div>
+    </div>
+    <div class="prob-body">
+      <div class="section-label">Problem Statement</div>
+      <p class="prob-desc">${q.description}</p>
+
+      <div class="section-label">Examples</div>
+      ${q.examples.map((ex, i) => `
+        <div class="example-box">
+          <div class="example-label">EXAMPLE ${i+1}</div>
+          <div class="example-input">Input: ${ex.input}</div>
+          <div class="example-output">Output: ${ex.output}</div>
+        </div>
+      `).join('')}
+
+      <div class="section-label">Constraints</div>
+      <div class="constraints-box">
+        ${q.constraints.map(c => `<div>• ${c}</div>`).join('')}
+      </div>
+
+      <div class="section-label">Function Signature</div>
+      <div class="sig-box">${q.signature}</div>
+    </div>
+  `;
+}
+
+function renderProblem(q) {
+  renderProblemOnly(q);
+  if (q) setEditorValue(`${q.signature}\n    # Write your solution here\n    pass`);
+}
+
+function selectQuestion(id) {
+  activeQId = id;
+  saveActiveQ(id);
+  const q = allQuestions.find(x => Number(x.id) === Number(id));
+  renderProblem(q);
+  renderSidebar();
+  document.getElementById('testcasesTab').innerHTML = '<div class="empty-msg">Click "Run" to execute against test cases</div>';
+  document.getElementById('summaryBar').style.display = 'none';
+  hideModal('adminModal');
+  if (sidebarVisible) toggleSidebar(false);
+}
+
+// ===================== TIMER =====================
+function formatTime(sec) {
+  const m = Math.floor(sec/60), s = sec%60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timer').textContent = formatTime(timeLeft);
+    if (timeLeft <= 0) { clearInterval(timerInterval); showModal('timeoutModal'); }
+  }, 1000);
+}
+
+// ===================== EDITOR =====================
+async function initCodeMirror(initialValue) {
+  const { EditorView, keymap, highlightActiveLine, lineNumbers, highlightActiveLineGutter } =
+    await import('https://esm.sh/@codemirror/view@6');
+  const { EditorState } = await import('https://esm.sh/@codemirror/state@6');
+  const { defaultKeymap, indentWithTab, history, historyKeymap } =
+    await import('https://esm.sh/@codemirror/commands@6');
+  const { python } = await import('https://esm.sh/@codemirror/lang-python@6');
+  const { indentOnInput, bracketMatching, syntaxHighlighting, HighlightStyle } =
+    await import('https://esm.sh/@codemirror/language@6');
+  const { tags } = await import('https://esm.sh/@lezer/highlight@1');
+  const { autocompletion } = await import('https://esm.sh/@codemirror/autocomplete@6');
+
+  const vmcHL = HighlightStyle.define([
+    { tag: tags.keyword, color: '#1a3a5c', fontWeight: 'bold' },
+    { tag: tags.string, color: '#1a5c2a' },
+    { tag: tags.number, color: '#7a3a0a' },
+    { tag: tags.comment, color: '#9a9080', fontStyle: 'italic' },
+    { tag: tags.definition(tags.variableName), color: '#2a2a6a' },
+    { tag: tags.function(tags.name), color: '#2a2a6a' },
+    { tag: tags.operator, color: '#5a0a0a' },
+    { tag: tags.bool, color: '#1a3a5c', fontWeight: 'bold' },
+    { tag: tags.variableName, color: '#1a1714' },
+    { tag: tags.className, color: '#5a2a00', fontWeight: 'bold' },
+  ]);
+
+  const theme = EditorView.theme({
+    '&': { background: '#faf8f5', color: '#1a1714', height: '100%' },
+    '.cm-scroller': { fontFamily: "'IBM Plex Mono', monospace", fontSize: '13px', lineHeight: '1.65', overflow: 'auto' },
+    '.cm-content': { caretColor: '#1a3a5c' },
+    '.cm-cursor': { borderLeftColor: '#1a3a5c', borderLeftWidth: '2px' },
+    '.cm-gutters': { background: '#f0ede8', borderRight: '1px solid #d8d4ce', color: '#aaa090' },
+    '.cm-lineNumbers .cm-gutterElement': { padding: '0 10px', minWidth: '38px' },
+    '.cm-activeLine': { background: 'rgba(26,58,92,0.04)' },
+    '.cm-activeLineGutter': { background: 'rgba(26,58,92,0.06)', color: '#6a7a8a' },
+    '.cm-selectionBackground': { background: 'rgba(200,168,75,0.25) !important' },
+    '&.cm-focused .cm-selectionBackground': { background: 'rgba(200,168,75,0.3) !important' },
+  });
+
+  const state = EditorState.create({
+    doc: initialValue,
+    extensions: [
+      history(), lineNumbers(), highlightActiveLine(), highlightActiveLineGutter(),
+      indentOnInput(), bracketMatching(), autocompletion(), python(),
+      syntaxHighlighting(vmcHL), theme,
+      keymap.of([indentWithTab, ...defaultKeymap, ...historyKeymap]),
+    ]
+  });
+
+  if (cmView) cmView.destroy();
+  const parent = document.getElementById('cm-editor');
+  parent.innerHTML = '';
+  cmView = new EditorView({ state, parent });
+  cmView.dom.style.height = '100%';
+}
+
+function getEditorValue() { return cmView ? cmView.state.doc.toString() : ''; }
+function setEditorValue(val) {
+  if (!cmView) return;
+  cmView.dispatch({ changes: { from: 0, to: cmView.state.doc.length, insert: val } });
+}
+
+// ===================== TEST RESULTS =====================
+function generateTestResults() {
+  const total = settings.totalTests;
+  const count = Math.min(Math.floor(Math.random() * (settings.testMax - settings.testMin + 1)) + settings.testMin, total);
+  const type = settings.testResult;
+  let pool = [];
+  if (type === 'pass') pool = ['success'];
+  else if (type === 'fail') pool = ['failed'];
+  else if (type === 'timeout') pool = ['timeout'];
+  else if (type === 'pass+fail') pool = ['success', 'failed'];
+  else if (type === 'pass+timeout') pool = ['success', 'timeout'];
+  else if (type === 'fail+timeout') pool = ['failed', 'timeout'];
+  else pool = ['success', 'failed', 'timeout'];
+
+  const targeted = new Set();
+  while (targeted.size < count) targeted.add(Math.floor(Math.random() * total));
+
+  return Array.from({ length: total }, (_, i) => {
+    let status = 'success';
+    if (targeted.has(i)) {
+      const np = pool.filter(s => s !== 'success');
+      if (np.length > 0) status = np[Math.floor(Math.random() * np.length)];
+    }
+    return { status, num: i + 1 };
+  });
+}
+
+function runTestCases() {
+  const container = document.getElementById('testcasesTab');
+  const results = generateTestResults();
+  let counts = { success: 0, failed: 0, timeout: 0 };
+
+  document.getElementById('summaryBar').style.display = 'flex';
+  document.getElementById('countPass').textContent = '0';
+  document.getElementById('countFail').textContent = '0';
+  document.getElementById('countTimeout').textContent = '0';
+  document.getElementById('testStatusLabel').textContent = 'Running...';
+
+  container.innerHTML = results.map((t, i) => `
+    <div id="tc-${i}" class="tc-row">
+      <span class="tc-name">Test Case ${String(t.num).padStart(2,'0')}</span>
+      <span class="tc-running"><span class="spin"></span>Running</span>
+    </div>
+  `).join('');
+
+  results.forEach((test, i) => {
+    setTimeout(() => {
+      const el = document.getElementById(`tc-${i}`);
+      if (!el) return;
+      counts[test.status]++;
+      document.getElementById('countPass').textContent = counts.success;
+      document.getElementById('countFail').textContent = counts.failed;
+      document.getElementById('countTimeout').textContent = counts.timeout;
+
+      const [label, cls] = test.status === 'success' ? ['PASSED', 'pass']
+        : test.status === 'failed' ? ['FAILED', 'fail'] : ['TIMEOUT', 'timeout'];
+
+      el.innerHTML = `
+        <span class="tc-name">Test Case ${String(test.num).padStart(2,'0')}</span>
+        <span class="tc-status ${cls}">${label}</span>
+      `;
+
+      if (i === results.length - 1) {
+        document.getElementById('testStatusLabel').textContent = `${counts.success}/${results.length} passed`;
+      }
+    }, (i + 1) * 180);
+  });
+}
+
+// ===================== MODAL HELPERS =====================
+function showModal(id) { document.getElementById(id).classList.add('show'); }
+function hideModal(id) { document.getElementById(id).classList.remove('show'); }
+
+['submitModal','timeoutModal','settingsModal','timerEditModal','adminModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => { if (e.target.id === id) hideModal(id); });
+});
+document.getElementById('instructionsModal').addEventListener('click', e => {
+  if (e.target.id === 'instructionsModal' && !testStarted) hideModal('instructionsModal');
+});
+
+// ===================== SIDEBAR =====================
+function toggleSidebar(force) {
+  sidebarVisible = force !== undefined ? force : !sidebarVisible;
+  const sb = document.getElementById('sidebar');
+  if (sidebarVisible) sb.classList.add('open');
+  else sb.classList.remove('open');
+}
+document.getElementById('toggleBtn').addEventListener('click', () => toggleSidebar());
+
+// ===================== SLIDES =====================
+function goToSlide(n) {
+  document.getElementById('slide' + currentSlide).classList.remove('active');
+  currentSlide = n;
+  document.getElementById('slide' + currentSlide).classList.add('active');
+  document.getElementById('currentSlide').textContent = currentSlide;
+  document.getElementById('prevSlideBtn').style.display = currentSlide === 1 ? 'none' : 'inline-block';
+  document.getElementById('nextSlideBtn').style.display = currentSlide === totalSlides ? 'none' : 'inline-block';
+  document.getElementById('startTestBtn').style.display = currentSlide === totalSlides ? 'inline-block' : 'none';
+}
+
+document.getElementById('nextSlideBtn').addEventListener('click', () => {
+  if (currentSlide === 1) { try { document.documentElement.requestFullscreen?.(); } catch {} }
+  if (currentSlide < totalSlides) goToSlide(currentSlide + 1);
+});
+document.getElementById('prevSlideBtn').addEventListener('click', () => { if (currentSlide > 1) goToSlide(currentSlide - 1); });
+document.getElementById('startTestBtn').addEventListener('click', () => {
+  hideModal('instructionsModal');
+  testStarted = true;
+  timeLeft = settings.timerDuration * 60;
+  const startBtn = document.getElementById('startBtn');
+  startBtn.disabled = true;
+  startBtn.textContent = '● RUNNING';
+  document.getElementById('runBtn').disabled = false;
+  document.getElementById('submitBtn').disabled = false;
+  const timerEl = document.getElementById('timer');
+  timerEl.textContent = formatTime(timeLeft);
+  timerEl.classList.remove('inactive');
+  document.getElementById('statusTest').textContent = 'Test in progress';
+  startTimer();
+});
+
+// ===================== BUTTONS =====================
+document.getElementById('startBtn').addEventListener('click', () => { if (!testStarted) showModal('instructionsModal'); });
+document.getElementById('runBtn').addEventListener('click', () => { if (testStarted) runTestCases(); });
+document.getElementById('submitBtn').addEventListener('click', () => { if (testStarted) { runTestCases(); setTimeout(() => showModal('submitModal'), settings.totalTests * 180 + 400); } });
+document.getElementById('closeSubmitModal').addEventListener('click', () => hideModal('submitModal'));
+document.getElementById('closeTimeoutModal').addEventListener('click', () => hideModal('timeoutModal'));
+
+document.getElementById('settingsBtn').addEventListener('click', () => {
+  document.getElementById('timerDuration').value = settings.timerDuration;
+  document.getElementById('totalTests').value = settings.totalTests;
+  document.getElementById('testResult').value = settings.testResult;
+  document.getElementById('testMin').value = settings.testMin;
+  document.getElementById('testMax').value = settings.testMax;
+  showModal('settingsModal');
+});
+document.getElementById('cancelSettingsBtn').addEventListener('click', () => hideModal('settingsModal'));
+document.getElementById('applySettingsBtn').addEventListener('click', () => {
+  settings.timerDuration = parseInt(document.getElementById('timerDuration').value);
+  settings.totalTests = parseInt(document.getElementById('totalTests').value);
+  settings.testResult = document.getElementById('testResult').value;
+  settings.testMin = parseInt(document.getElementById('testMin').value);
+  settings.testMax = parseInt(document.getElementById('testMax').value);
+  if (!testStarted) timeLeft = settings.timerDuration * 60;
+  hideModal('settingsModal');
+});
+
+document.getElementById('timer').addEventListener('click', () => {
+  document.getElementById('editMinutes').value = Math.floor(timeLeft / 60);
+  document.getElementById('editSeconds').value = timeLeft % 60;
+  showModal('timerEditModal');
+});
+document.getElementById('cancelTimerEdit').addEventListener('click', () => hideModal('timerEditModal'));
+document.getElementById('applyTimerEdit').addEventListener('click', () => {
+  timeLeft = (parseInt(document.getElementById('editMinutes').value)||0)*60 + (parseInt(document.getElementById('editSeconds').value)||0);
+  document.getElementById('timer').textContent = formatTime(timeLeft);
+  hideModal('timerEditModal');
+});
+
+// ===================== ADMIN =====================
+document.getElementById('vmcLogo').addEventListener('click', () => { renderAdminPanel(); showModal('adminModal'); });
+document.getElementById('closeAdminBtn').addEventListener('click', () => hideModal('adminModal'));
+
+document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+function renderAdminPanel() { renderBankTable(); renderSheetTable(); }
+
+function renderBankTable() {
+  document.getElementById('bankTableBody').innerHTML = allQuestions.map(q => `
+    <tr>
+      <td style="color:var(--text3);font-family:'IBM Plex Mono',monospace;">${q.id}</td>
+      <td>${q.title}</td>
+      <td>${diffBadge(q.difficulty)}</td>
+      <td style="text-align:center;">
+        <button onclick="toggleSheet(${q.id})" style="background:none;border:none;cursor:pointer;font-size:14px;">${sheetIds.includes(q.id) ? '☑' : '☐'}</button>
+      </td>
+      <td style="text-align:center;">
+        <button class="table-btn del" onclick="deleteQuestion(${q.id})">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderSheetTable() {
+  const sq = getSheetQuestions();
+  document.getElementById('sheetTableBody').innerHTML = sq.length === 0 ?
+    `<tr><td colspan="5" style="text-align:center;color:var(--text3);font-style:italic;padding:16px;">No questions in sheet.</td></tr>` :
+    sq.map((q, idx) => `
+      <tr>
+        <td style="color:var(--text3);font-family:'IBM Plex Mono',monospace;">${idx+1}</td>
+        <td>${q.title}</td>
+        <td>${diffBadge(q.difficulty)}</td>
+        <td style="text-align:center;">
+          ${q.id === activeQId
+            ? '<span style="color:var(--accent);font-size:11px;font-weight:700;font-family:\'IBM Plex Mono\',monospace;">● ACTIVE</span>'
+            : `<button class="table-btn set" onclick="setActive(${q.id})">Set Active</button>`}
+        </td>
+        <td style="text-align:center;">
+          <button class="table-btn del" onclick="removeFromSheet(${q.id})">Remove</button>
+        </td>
+      </tr>
+    `).join('');
+}
+
+function toggleSheet(id) {
+  if (sheetIds.includes(id)) sheetIds = sheetIds.filter(x => x !== id);
+  else sheetIds.push(id);
+  saveSheet(sheetIds); renderSidebar(); renderAdminPanel();
+}
+function removeFromSheet(id) {
+  sheetIds = sheetIds.filter(x => x !== id);
+  saveSheet(sheetIds); renderSidebar(); renderAdminPanel();
+}
+function setActive(id) {
+  activeQId = id; saveActiveQ(id);
+  const q = allQuestions.find(x => x.id === id);
+  renderProblem(q); renderSidebar(); renderAdminPanel();
+}
+function deleteQuestion(id) {
+  if (!confirm('Delete this question permanently?')) return;
+  allQuestions = allQuestions.filter(q => q.id !== id);
+  sheetIds = sheetIds.filter(x => x !== id);
+  if (activeQId === id) { activeQId = sheetIds[0] || null; saveActiveQ(activeQId); }
+  saveQuestions(allQuestions); saveSheet(sheetIds);
+  renderSidebar(); renderAdminPanel();
+  if (activeQId) renderProblem(allQuestions.find(q => q.id === activeQId));
+}
+
+document.getElementById('submitAddQuestion').addEventListener('click', () => {
+  const title = document.getElementById('addTitle').value.trim();
+  const signature = document.getElementById('addSignature').value.trim();
+  const desc = document.getElementById('addDesc').value.trim();
+  const difficulty = document.getElementById('addDifficulty').value;
+  const addToSheet = document.getElementById('addToSheet').value === 'yes';
+  const status = document.getElementById('addQStatus');
+  let examples, constraints;
+
+  if (!title || !signature || !desc) {
+    status.textContent = '✖ Title, signature and description are required.';
+    status.className = 'add-status err'; return;
+  }
+  try { examples = JSON.parse(document.getElementById('addExamples').value || '[]'); }
+  catch { status.textContent = '✖ Invalid JSON in Examples.'; status.className = 'add-status err'; return; }
+  constraints = document.getElementById('addConstraints').value.split('\n').map(s=>s.trim()).filter(Boolean);
+
+  const newQ = { id: nextId(), title, difficulty, description: desc, examples, constraints, signature };
+  allQuestions.push(newQ);
+  if (addToSheet) sheetIds.push(newQ.id);
+  saveQuestions(allQuestions); saveSheet(sheetIds);
+  ['addTitle','addSignature','addDesc','addExamples','addConstraints'].forEach(id => document.getElementById(id).value = '');
+  status.textContent = `✔ "${title}" added successfully.`;
+  status.className = 'add-status ok';
+  renderSidebar(); renderAdminPanel();
+});
+
+// ===================== KEYBOARD =====================
+document.addEventListener('keydown', e => {
+  const tag = document.activeElement.tagName.toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+  if (e.key === '1') { showModal('submitModal'); return; }
+  if (e.key === '2') { showModal('timeoutModal'); return; }
+  if (e.key === 'Escape') {
+    ['submitModal','timeoutModal','settingsModal','timerEditModal','adminModal'].forEach(hideModal);
+    if (!testStarted) hideModal('instructionsModal');
+    if (sidebarVisible) toggleSidebar(false);
+  }
+});
+
+// ===================== INIT =====================
+async function init() {
+  allQuestions = loadQuestions();
+  sheetIds = loadSheet();
+  activeQId = loadActiveQ();
+
+  renderSidebar();
+
+  const active = allQuestions.find(q => q.id === activeQId)
+    || getSheetQuestions()[0]
+    || allQuestions[0];
+
+  const initialCode = active
+    ? `${active.signature}\n    # Write your solution here\n    pass`
+    : '# Write your solution here\npass';
+
+  await initCodeMirror(initialCode);
+
+  if (active) {
+    activeQId = active.id;
+    saveActiveQ(activeQId);
+    renderProblemOnly(active);
+    renderSidebar();
+  }
+}
+</script>
+</body>
+</html>
